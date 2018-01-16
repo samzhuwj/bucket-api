@@ -12,6 +12,7 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
+    buckets = db.relationship('Bucket', backref='bucket', lazy='dynamic')
 
     def __init__(self, email, password):
         self.email = email
@@ -73,13 +74,26 @@ class BlackListToken(db.Model):
         self.blacklisted_on = datetime.datetime.now()
 
 
-@staticmethod
-def check_blacklist(token): """
-    Check to find out whether a token has already been blacklsited.
-    :param token: Authorization token
-    :return:
+    @staticmethod
+    def check_blacklist(token):
+        """
+        Check to find out whether a token has already been blacklisted.
+        :param token: Authorization token
+        :return:
+        """
+        response = BlackListToken.query.filter_by(token=token).first()
+        if response:
+            return True
+        return False
+
+
+class Bucket(db.Model):
     """
-    response = BlackListToken.query.filter_by(token=token).first()
-    if response:
-        return True
-    return False
+    Class to represent the BucketList model
+    """
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __init__(self, name):
+        self.name = name
