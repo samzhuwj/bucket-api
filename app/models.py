@@ -29,7 +29,9 @@ class User(db.Model):
         try:
             payload = {
                 'exp': datetime.datetime.now() + datetime.timedelta(days=0, seconds=8),
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=20),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=app.config.get('AUTH_TOKEN_EXPIRY_DAYS'),
+                                                                       seconds=app.config.get(
+                                                                           'AUTH_TOKEN_EXPIRY_SECONDS')),
                 'iat': datetime.datetime.utcnow(),
             }
             return jwt.encode(
